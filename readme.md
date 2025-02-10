@@ -95,7 +95,7 @@ Follow these steps to get Twitch-Predictions-Bot up and running:
 
 **Prerequisites:**
 
-1.  **Python 3.9+:**  Make sure you have Python 3.9 or a later version installed.
+1.  **Python 3.12:**  This project works on Python version 3.12.
 2.  **Google Chrome Browser:** The bot uses Google Chrome.
 3.  **ChromeDriver:**  Download the ChromeDriver that matches your Chrome version from [https://chromedriver.chromium.org/downloads](https://chromedriver.chromium.org/downloads). Place it in a directory that is in your system's `PATH`, or specify the path in `config.yaml`.
 
