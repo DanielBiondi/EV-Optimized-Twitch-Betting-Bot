@@ -180,7 +180,7 @@ Follow these steps to get Twitch-Predictions-Bot up and running:
 
 ## Important Notes and Disclaimer
 
-*   **Use at Your Own Risk:** This bot is provided as-is, for educational and experimental purposes
+*   **Use at Your Own Risk:** This bot is provided as-is, for educational and experimental purposes only.
 *   **Websites can change:** When websites change in some ways, the bot can stop working until updated.
 *   **Google Gemini API Costs:** Be mindful of your Google Gemini API usage and costs, certain amounts of Gemini 2.0 Flash should be free.
 *   **ChromeDriver Compatibility:** Ensure your ChromeDriver version matches your Chrome browser version.
