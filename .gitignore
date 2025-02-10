@@ -1,0 +1,17 @@
+.venv/
+# Python cache files
+__pycache__/
+*.pyc
+
+# IDE settings
+.idea/
+.vs/
+
+# Profiling output
+*.callgrind
+
+# Logs or data files (if not meant to be versioned)
+Twitch Prediction History.txt
+
+# Sensitive data
+twitch_cookies.csv

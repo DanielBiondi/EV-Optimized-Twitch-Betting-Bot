@@ -1,0 +1,20 @@
+# config.yaml
+twitch_channels:
+  - sneakylol
+  - meteos
+  - caedrel
+# - tolkin
+
+betting_website_url: "https://gg258.bet/en?sportId=esports_league_of_legends"
+chromedriver_path: ""  # Optional: only needed if chromedriver isn't in your system's PATH (e.g. windows folder)
+
+
+
+
+
+
+# gg258.bet game_url beause right now i have the league of legends link hard coded.
+# optional other game_urls if you care about more than just one game.
+# bool_actively_getting_free_points so that if someone right now only has 100 points that the bot is allowed to bet all
+# 100 for example. but also would need to actually write code to use that then during calculate_bet.
+# start_bet_x_seconds_before_timer_runs_out
