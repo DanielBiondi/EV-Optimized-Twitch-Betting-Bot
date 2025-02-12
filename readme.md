@@ -1,11 +1,11 @@
-# Twitch-Predictions-Bot - Smart Automated Twitch Prediction Betting Bot
+# EV-Optimized-Twitch-Predictions-Bot - Smart Expected Value Optimizing Twitch Prediction Betting Bot
 
 [![MIT License Badge](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python Version Badge](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 
-## What is Twitch-Predictions-Bot?
+## What is EV-Optimized-Twitch-Predictions-Bot?
 
-Twitch-Predictions-Bot is an automated betting program designed to intelligently participate in Twitch channel predictions.  It leverages real-time odds from external betting websites, advanced mathematical calculations, and a fast language model to identify profitable betting opportunities and place optimal bets, maximizing your potential to earn Twitch channel points.
+EV-Optimized-Twitch-Predictions-Bot is an automated betting program designed to intelligently participate in Twitch channel predictions.  It leverages real-time odds from external betting websites, advanced mathematical calculations, and a fast language model to identify profitable betting opportunities and place optimal bets, maximizing your potential to earn Twitch channel points.
 
 **In simple terms:** This bot watches Twitch predictions, finds good bets based on real-world odds, and automatically bets for you, aiming to increase your channel points using a smart strategy. It can run 24/7, even when you're not around!
 
@@ -27,9 +27,9 @@ The primary reasons for automating Twitch prediction betting are:
 * **Concurrency:** Easily participate in multiple channels and take part in multiple predictions simultaneously.
 *   **Eliminates Human Error:**  Removes the risk of misclicks, delays, or emotional decision-making that can affect manual betting.
 
-## How Twitch-Predictions-Bot Works: The Strategy
+## How EV-Optimized-Twitch-Predictions-Bot Works: The Strategy
 
-Twitch-Predictions-Bot employs a sophisticated strategy to identify and capitalize on profitable betting opportunities:
+EV-Optimized-Twitch-Predictions-Bot employs a sophisticated strategy to identify and capitalize on profitable betting opportunities:
 
 1.  **Real-Money Odds Scraping:** The bot scrapes odds data from a real-money betting website.  *Currently, only GG258.bet links are supported*. You can specify the exact GG258.bet link for the game you want to track in the `config.yaml` file. This website offers odds that reflect the broader betting market's assessment of the probability of each outcome.
 
@@ -91,7 +91,7 @@ Twitch-Predictions-Bot employs a sophisticated strategy to identify and capitali
 
 ## Getting Started: Installation and Setup
 
-Follow these steps to get Twitch-Predictions-Bot up and running:
+Follow these steps to get EV-Optimized-Twitch-Predictions-Bot up and running:
 
 **Prerequisites:**
 
@@ -103,8 +103,8 @@ Follow these steps to get Twitch-Predictions-Bot up and running:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/DanielBiondi/Twitch-Predictions-Bot.git
-    cd Twitch-Predictions-Bot
+    git clone https://github.com/DanielBiondi/EV-Optimized-Twitch-Predictions-Bot.git
+    cd EV-Optimized-Twitch-Predictions-Bot
     ```
 2.  **Create a Virtual Environment (Recommended):**
     ```bash
