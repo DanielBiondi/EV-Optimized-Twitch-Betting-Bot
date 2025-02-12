@@ -168,7 +168,7 @@ class TwitchIntegration:
         """
         try:
             # create a new twitch driver for this channel.
-            twitch_channel_driver = create_new_chrome_driver()  #headless=False)  # TODO: idk if headless or not man.
+            twitch_channel_driver = create_new_chrome_driver(big=True)  #headless=False)
             twitch_channel_driver.get(f"https://www.twitch.tv/popout/{channel}/chat")
             self.upload_cookies_to_driver(twitch_channel_driver)
 
