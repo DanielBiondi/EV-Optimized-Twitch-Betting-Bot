@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from use_openai import get_twitch_team_selectors
+from use_llm import get_twitch_team_selectors
 from utils import create_new_chrome_driver, sort_by_start_time
 from config import CONFIG
 

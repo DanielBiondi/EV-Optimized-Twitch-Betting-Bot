@@ -1,10 +1,14 @@
 #import yappi
 import asyncio
+import time
 
 from utils import create_new_chrome_driver
 from twitch import TwitchHandler
 from betting_website_scraping import scrape_with_retry
 from config import CONFIG
+
+class RestartNow(Exception):
+    pass
 
 async def main():
     twitch_check_for_new_predictions_driver = None
@@ -30,9 +34,13 @@ async def main():
                 channel_names,
                 twitch_check_for_new_predictions_driver,
                 matches_data
-            ))
+            )),
+            asyncio.create_task(restart_scheduler(twitch_handler))  # New task for restart scheduling
         ]
         await asyncio.gather(*tasks)
+    except RestartNow:
+        print("Restarting main loop...")
+        raise  # Propagate the exception to trigger restart
     except KeyboardInterrupt:
         print("Interrupted by user.")
     except Exception as e:
@@ -41,6 +49,39 @@ async def main():
         print("finally block")
         if twitch_check_for_new_predictions_driver:
             twitch_check_for_new_predictions_driver.quit()
+
+async def restart_scheduler(twitch_handler):
+    """Checks every 40 minutes and restarts unless a prediction is ending soon"""
+    while True:
+        await asyncio.sleep(2400)  # 40 minutes
+
+        current_time = time.time()
+        # Check all active predictions
+        with twitch_handler.integration.twitch_predictions_lock:
+            active_predictions = list(twitch_handler.integration.active_twitch_predictions.values())
+
+        # Determine relevant predictions (ending in <= 150 seconds)
+        relevant_end_times = []
+        for pred in active_predictions:
+            remaining = pred['end_time'] - current_time
+            if 0 < remaining <= 150:
+                relevant_end_times.append(pred['end_time'])
+
+        if relevant_end_times:
+            # Wait until the latest relevant prediction ends
+            latest_end = max(relevant_end_times)
+            wait_time = latest_end - current_time
+            if wait_time > 0:
+                await asyncio.sleep(wait_time)
+            # Check again for new predictions added during wait
+            current_time = time.time()
+            with twitch_handler.integration.twitch_predictions_lock:
+                current_active = list(twitch_handler.integration.active_twitch_predictions.values())
+            new_relevant = [p['end_time'] for p in current_active if 0 < (p['end_time'] - current_time) <= 150]
+            if new_relevant:
+                await asyncio.sleep(max(new_relevant) - current_time)
+        # Trigger restart
+        raise RestartNow()
 
 async def check_predictions_periodically(twitch_handler, channel_names, driver, matches_data):
     """Checks for new predictions every 20 seconds, offloading blocking calls to threads"""
@@ -55,7 +96,7 @@ async def check_predictions_periodically(twitch_handler, channel_names, driver, 
                 driver,
                 matches_data
             )
-            await asyncio.sleep(1)
+            await asyncio.sleep(5)
         except Exception as e:
             print(f"Error in check_predictions_periodically: {e}")
 
@@ -110,7 +151,20 @@ if __name__ == "__main__":
     # Start Yappi profiler. The "profile_threads=True" option will profile threads as well.
    # yappi.start(profile_threads=True)
    # try:
-    asyncio.run(main())
+    while True:
+        try:
+            asyncio.run(main())
+        except RestartNow:
+            print("Restarting the script...")
+            continue
+        except KeyboardInterrupt:
+            print("Exiting due to user interrupt.")
+            break
+        except Exception as e:
+            print(f"Script exited due to error: {e}")
+            break
+
+
     """except KeyboardInterrupt:
             # KeyboardInterrupt may be handled both inside main and here.
             print("Main application interrupted by user.")

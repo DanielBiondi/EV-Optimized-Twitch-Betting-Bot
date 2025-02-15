@@ -10,7 +10,7 @@ from betting_website_scraping import get_updated_match_odds, get_team_odds_selec
 from twitch_actions import click_get_started, click_points_element, click_prediction_button, \
     place_bet_on_channel, get_timer_text, click_predict_custom_amount
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from use_openai import get_url_from_openai
+from use_llm import get_url_from_llm
 
 
 #active_twitch_predictions = {
@@ -196,7 +196,7 @@ class TwitchIntegration:
 
             # Call OpenAI function to get match url
             try:
-                match_url = get_url_from_openai(
+                match_url = get_url_from_llm(
                     prediction_question,
                     [blue_vote_option, red_vote_option],
                     matches_data
@@ -292,8 +292,7 @@ class TwitchIntegration:
                     self.processing_channels.remove(channel)
                     print("removed from processing channel", channel)
 
-    # TODO: after placing the bet it keeps printing
-    #  Match URL https://gg258.bet/en/esports/match/shopify-rebellion-vs-lyon-gaming-02-02 for ltanorth not found. Skipping.
+
     def update_betting_odds(self):
         # updates the betting site odds.
         """Update betting odds for all active predictions"""
@@ -468,10 +467,9 @@ class TwitchIntegration:
                     if not site_data['linked_channels']:  # then we check if there is another channel linked
                         if 'driver' in site_data:  # and if not then we can close the driver ourside of lock block
                             driver_to_quit =  site_data['driver']
+                            del self.active_betting_site_data[betting_url]  # <-- Moved inside the check
             try:
                 if driver_to_quit:
                     driver_to_quit.quit()
             except Exception as e:
                 print(f"Error quitting betting driver for {betting_url}: {e}")
-            with self.active_betting_site_lock:
-                del self.active_betting_site_data[betting_url]

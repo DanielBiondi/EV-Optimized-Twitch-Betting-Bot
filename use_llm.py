@@ -1,9 +1,10 @@
-# use_openai.py
+# use_llm.py
 import os
 import random
 import time
 
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 import json
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
@@ -74,13 +75,13 @@ model_for_selectors = genai.GenerativeModel(
 
 
 # Use OpenAI's GPT to parse team names and match them to rivalry.com data.
-def get_url_from_openai(prediction_question, vote_options, matches_data, max_retries=5):
+def get_url_from_llm(prediction_question, vote_options, matches_data, max_retries=5):
     print("get_url_from_openai_start",prediction_question, vote_options, matches_data)
     for attempt  in range(max_retries):  # Try 3 times total
         try:
             chat = model_for_url.start_chat(history=[])
-            prompt = (f"FOR TESTING RIGHT NOW: IF NONE FIT, WRITE ONE OF THEM ANYWAYS"
-                      f"You are an assistant that processes Twitch prediction polls and match data to determine relevant betting information.\n\n**Given the following Twitch prediction:**\n\n```\nPrediction question: {prediction_question}\nVote options:\n{vote_options}\n```\n\n**And the following match data:**\n\n{matches_data}\n\n**Your task is to:**\n\n1. Identify which match from the match data corresponds to the Twitch prediction.\n2. Use the team names from the match data (not from the Twitch prediction).\n2.5 Use the odds from the Twitch prediction.\n3. Output the information in an easily parsable JSON format with the following key:\n - `url`\n **Note:**\n\n- Ensure that the team names are taken from the match data provided.\n- The output should be valid JSON that can be easily parsed by a program.\n- If multiple matches could correspond to the prediction, choose the most relevant one based on the team names and context. Also if no match corresponds to the prediction, then return no url. return reasoning and url in the json seperately NVM always return one of them for testing. also i guess for testing its better if oyu dont choose the first one.\n\n---\n")
+            prompt = (f"IF NONE FIT, WRITE ONE OF THEM ANYWAYS"
+                      f"You are an assistant that processes Twitch prediction polls and match data to determine relevant betting information.\n\n**Given the following Twitch prediction:**\n\n```\nPrediction question: {prediction_question}\nVote options:\n{vote_options}\n```\n\n**And the following match data:**\n\n{matches_data}\n\n**Your task is to:**\n\n1. Identify which match from the match data corresponds to the Twitch prediction.\n2. Use the team names from the match data (not from the Twitch prediction).\n2.5 Use the odds from the Twitch prediction.\n3. Output the information in an easily parsable JSON format with the following key:\n - `url`\n **Note:**\n\n- Ensure that the team names are taken from the match data provided.\n- The output should be valid JSON that can be easily parsed by a program.\n- If multiple matches could correspond to the prediction, choose the most relevant one based on the team names and context. Also if no match corresponds to the prediction, then return no url. return reasoning and url in the json seperately.\n\n---\n")
             response = None
             try:
                 response = chat.send_message(prompt)
@@ -158,7 +159,7 @@ def get_twitch_team_selectors(market_names_and_titles, twitch_team1_name, twitch
   # Construct the LLM prompt
   prompt = f"""You are an assistant that matches Twitch prediction questions to betting markets. Follow these steps:
 
-1. Analyze the prediction question to determine the relevant betting market (e.g., "Map 1 - Winner", "Series Winner"). If unspecified, assume it refers to the current map or if no current map then next map.
+1. Analyze the prediction question to determine the relevant betting market (e.g., "Map 1 - Winner", "Series Winner"). If unspecified, assume it refers to the current map or if no current map then next map. That means if it's generic, and you have the option of "Moneyline" and "Map 1", choose map 1. something like "who wins this series" would be moneyline. most of the time they ask for the current map.
 2. Match the Twitch team names to the titles in the selected market's options. Consider possible name variations (abbreviations, different casing, the twitch streamer being creative.).
 3. Return JSON with: 
 "reasoning":(about 2 sentences), 
@@ -178,14 +179,22 @@ def get_twitch_team_selectors(market_names_and_titles, twitch_team1_name, twitch
 
 **Prediction Question:** "{prediction_question}"
 
-Use null for unmatched fields. NVM always return one of each for testing. 
+always return one for each. 
 IMPORTANT: FOR TESTING RIGHT NOW: IF NONE FIT, WRITE ONE OF THEM ANYWAYS"""
 
 
   try:
+    max_retries = 5
+    base_delay = 2  # Base delay in seconds
     # Get structured response from LLM
     chat = model_for_selectors.start_chat(history=[])
-    response = chat.send_message(prompt)
+    response = None
+    for attempt in range(max_retries):
+        try:
+            response = chat.send_message(prompt)
+            continue
+        except ResourceExhausted as e:
+            print(f"API quota exceeded on attempt {attempt + 1}. Retrying...")
     json_response = json.loads(response.text)  # Response will already be in JSON format
     print(json_response)
 
@@ -204,4 +213,3 @@ IMPORTANT: FOR TESTING RIGHT NOW: IF NONE FIT, WRITE ONE OF THEM ANYWAYS"""
     print(f"Error in get_twitch_team_selectors: {str(e)}")
     return None, None, None
 
-  # TODO: "NVM always return one of" i have that in the prompts and its just for testing delete that.
